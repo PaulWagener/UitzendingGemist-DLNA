@@ -9,12 +9,18 @@ import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
 import net.pms.PMS;
 
-public class HTTPWrapper {
+public abstract class HTTPWrapper {
 
     public static String strCookies = "";
     private static String strHTML = "";
 
+    public static String Request(String URL) {
+        return Request(URL, "", "");
+    }
 
+    public static String Request(String URL, String PostData) {
+        return Request(URL, PostData, "");
+    }
     public static String Request(String URL, String PostData, String Referer) {
         String method;
         if (!PostData.equals("")) {

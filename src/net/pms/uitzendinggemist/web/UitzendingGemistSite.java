@@ -23,18 +23,17 @@ abstract public class UitzendingGemistSite {
 
     public static List<Uitzending> getUitzendingenByDag(String dagWaarde)
     {
-        HTTPWrapper.Request("http://www.uitzendinggemist.nl/", "", "");
+        //Get cookie!
+        HTTPWrapper.Request("http://www.uitzendinggemist.nl/");
 
         List<Uitzending> uitzendingen = new ArrayList<Uitzending>();
   
-        String lijstPagina = HTTPWrapper.Request("http://www.uitzendinggemist.nl/index.php/selectie?searchitem=dag&dag=4", "", "");
-
+        String lijstPagina = HTTPWrapper.Request("http://www.uitzendinggemist.nl/index.php/selectie?searchitem=dag&dag=" + dagWaarde);
 
         Matcher m = Pattern.compile("<tr.*?<a class=\"title\" .*?>(.*?)</a></td>.*?<a href=\"http://player.omroep.nl/\\?aflID=(.*?)\" target=\"player\".*?</tr>", Pattern.DOTALL | Pattern.MULTILINE).matcher(lijstPagina);
-        PMS.minimal("finding hits...");
-        while(m.find()) {
+        while(m.find())
             uitzendingen.add(new Uitzending(m.group(1), m.group(2)));
-        }
+
         return uitzendingen;
     }
 
@@ -46,7 +45,7 @@ abstract public class UitzendingGemistSite {
         //Bestanden op uitzendinggemist geven een foutmelding als je ze geen cookie geeft
         //Deze cookie is op te halen op een willekeurige pagina op player.omroep.nl
         HTTPWrapper.strCookies = "";
-        HTTPWrapper.Request("http://player.omroep.nl/?aflID=" + afleveringID, "", "");
+        HTTPWrapper.Request("http://player.omroep.nl/?aflID=" + afleveringID);
         
 
         /**
@@ -55,14 +54,13 @@ abstract public class UitzendingGemistSite {
         // UitzendingGemist handhaaft een securitycode die in een javascript bestand
         // Dit is een md5 code die verplicht is mee te geven aan de metaplayer.xml.php pagina
         //
-        String jsbestandinhoud = HTTPWrapper.Request("http://player.omroep.nl/js/initialization.js.php?aflID=" + afleveringID, "", "");
+        String jsbestandinhoud = HTTPWrapper.Request("http://player.omroep.nl/js/initialization.js.php?aflID=" + afleveringID);
 
         String securityCode = find("var securityCode = '(.*?)';", jsbestandinhoud);
 
-        if (securityCode == null) {
+        if (securityCode == null)
             PMS.minimal("SecurityCode niet kunnen vinden in javascript");
-        }
-
+        
         /**
          * === Ophalen metaplayer.xml.php ===
          */
@@ -89,17 +87,16 @@ abstract public class UitzendingGemistSite {
         // uitstaan weigert uitzendinggemist.nl de juiste pagina terug te geven
 
         // Haal de gegevens van metaplayerXML op
-        String metaXML = HTTPWrapper.Request(metaplayerURL, "", "");
+        String metaXML = HTTPWrapper.Request(metaplayerURL);
 
         //Print info over aflevering
         MetaplayerInfo metainfo = new MetaplayerInfo(metaXML);
         PMS.minimal("Gegevens aflevering:\n" + "  Titel: " + metainfo.getTitel() + "\n" + "  Duratie: " + metainfo.getDuratie() + "\n" + "  Stream: " + metainfo.getBBStream() + "\n");
 
         String streamURL = metainfo.getBBStream();
-        if (streamURL == null) {
+        if (streamURL == null)
             PMS.minimal("Deze aflevering is niet bekend bij uitzendinggemist.nl");
-        }
-
+        
         /**
          * === Downloaden Stream Informatie ===
          */
@@ -109,7 +106,7 @@ abstract public class UitzendingGemistSite {
         // eigenlijk een klein bestand is met een verwijzing naar de
         // streamserver. De stream zelf heeft een URL van het formaat
         // mms://server/etc.asf
-        String streamXML = HTTPWrapper.Request(streamURL, "", "");
+        String streamXML = HTTPWrapper.Request(streamURL);
         String mediastream = new StreamInfo(streamXML).getMediaStream();
 
         if (mediastream == null) {
