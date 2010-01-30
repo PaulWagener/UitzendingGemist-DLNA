@@ -7,6 +7,7 @@ package net.pms.uitzendinggemist;
 
 import javax.swing.JComponent;
 import net.pms.PMS;
+import net.pms.configuration.RendererConfiguration;
 import net.pms.dlna.DLNAMediaInfo;
 import net.pms.dlna.DLNAResource;
 import net.pms.dlna.virtual.VirtualFolder;
@@ -45,7 +46,17 @@ public class UitzendingGemist implements ExternalListener {
         mainFolder.addChild(titelFolder);
 
 
-        PMS.get().getRootFolder(null).addChild(mainFolder);
+        //Voeg Uitzending Gemist toe aan alle configuraties
+        //TODO: Wachten op PMS om hook toe te voegen voor plugins om aan rootfolders iets toe te voegen
+        int i = 1;
+        RendererConfiguration conf = RendererConfiguration.getRendererConfiguration(i);
+        while(conf != RendererConfiguration.getDefaultConf())
+        {
+            conf.getRootFolder().addChild(mainFolder);
+            
+            i++;
+            conf = RendererConfiguration.getRendererConfiguration(i);
+        }
     }
 
     public JComponent config() {
