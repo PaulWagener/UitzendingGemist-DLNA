@@ -21,20 +21,29 @@ import net.pms.uitzendinggemist.Uitzending;
 abstract public class UitzendingGemistSite {
 
 
-    public static List<Uitzending> getUitzendingenByDag(String dagWaarde)
+    public static List<Uitzending> getUitzendingen(String URL)
     {
         //Get cookie!
         HTTPWrapper.Request("http://www.uitzendinggemist.nl/");
 
         List<Uitzending> uitzendingen = new ArrayList<Uitzending>();
-  
-        String lijstPagina = HTTPWrapper.Request("http://www.uitzendinggemist.nl/index.php/selectie?searchitem=dag&dag=" + dagWaarde);
+        addUitzendingen(URL, uitzendingen, 1);       
 
-        Matcher m = Pattern.compile("<tr.*?<a class=\"title\" .*?>(.*?)</a></td>.*?<a href=\"http://player.omroep.nl/\\?aflID=(.*?)\" target=\"player\".*?</tr>", Pattern.DOTALL | Pattern.MULTILINE).matcher(lijstPagina);
+        return uitzendingen;
+    }
+
+    private static void addUitzendingen(String URL, List<Uitzending> uitzendingen, int pgNum) {
+        String lijstPagina = HTTPWrapper.Request(URL+"&pgNum="+pgNum);
+        
+        Matcher m = Pattern.compile("<tr.*?<a class=\"title\" .*?>(.*?)</a></td>.*?<a href=\"http://player.omroep.nl/\\?aflID=(.*?)\" target=\"player\".*?</tr>", Pattern.DOTALL).matcher(lijstPagina);
         while(m.find())
             uitzendingen.add(new Uitzending(m.group(1), m.group(2)));
 
-        return uitzendingen;
+        System.out.println(pgNum);
+        
+        //Is er een volgende pagina?
+        if(lijstPagina.indexOf(">volgende<") != -1)
+            addUitzendingen(URL, uitzendingen, pgNum+1);
     }
 
     public static String getStreamByAfleveringID(String afleveringID) {

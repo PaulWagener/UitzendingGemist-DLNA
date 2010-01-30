@@ -28,11 +28,12 @@ public class OverzichtDagFolder extends VirtualFolder {
     public void discoverChildren() {
         super.discoverChildren();
 
-        List<Uitzending> uitzendingen = UitzendingGemistSite.getUitzendingenByDag(dagWaarde);
+        List<Uitzending> uitzendingen = UitzendingGemistSite.getUitzendingen("http://www.uitzendinggemist.nl/index.php/selectie?searchitem=dag&dag=" + dagWaarde);
         for(Uitzending uitzending : uitzendingen) {
             addChild(uitzending);
         }
     }
+
 
 
 
