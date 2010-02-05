@@ -4,11 +4,10 @@
  */
 package net.pms.uitzendinggemist.web;
 
-import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import net.pms.PMS;
@@ -20,30 +19,38 @@ import net.pms.uitzendinggemist.Uitzending;
  */
 abstract public class UitzendingGemistSite {
 
+    public static List<Uitzending> getUitzendingen(String URL) {
+        return getUitzendingen(URL, "");
+    }
 
-    public static List<Uitzending> getUitzendingen(String URL)
-    {
+    public static List<Uitzending> getUitzendingen(String url, String post) {
         //Get cookie!
         HTTPWrapper.Request("http://www.uitzendinggemist.nl/");
 
         List<Uitzending> uitzendingen = new ArrayList<Uitzending>();
-        addUitzendingen(URL, uitzendingen, 1);       
+        addUitzendingen(url, post, uitzendingen, 1);
 
         return uitzendingen;
     }
 
-    private static void addUitzendingen(String URL, List<Uitzending> uitzendingen, int pgNum) {
-        String lijstPagina = HTTPWrapper.Request(URL+"&pgNum="+pgNum);
-        
-        Matcher m = Pattern.compile("<tr.*?<a class=\"title\" .*?>(.*?)</a></td>.*?<a href=\"http://player.omroep.nl/\\?aflID=(.*?)\" target=\"player\".*?</tr>", Pattern.DOTALL).matcher(lijstPagina);
-        while(m.find())
-            uitzendingen.add(new Uitzending(m.group(1), m.group(2)));
+    private static void addUitzendingen(String url, String post, List<Uitzending> uitzendingen, int pgNum) {
+        String lijstPagina = HTTPWrapper.Request(url + "&pgNum=" + pgNum, post);
+        Matcher m = Pattern.compile("<td[^<]*?><a[^<]*?md5=.*?>(.*?)</a>.*?<td.*?>(.*?)</td>.*?<a href=\"http://player.omroep.nl/\\?aflID=(.*?)\"", Pattern.DOTALL).matcher(lijstPagina);
 
-        System.out.println(pgNum);
-        
+        while (m.find()) {
+            long time = 0;
+            try {
+                time = new SimpleDateFormat("dd-MM-yyyy").parse(m.group(2)).getTime();
+            } catch (ParseException e) {
+            }
+
+            uitzendingen.add(new Uitzending(m.group(1), m.group(3), time));
+        }
+
         //Is er een volgende pagina?
-        if(lijstPagina.indexOf(">volgende<") != -1)
-            addUitzendingen(URL, uitzendingen, pgNum+1);
+        if (lijstPagina.indexOf(">volgende<") != -1) {
+            addUitzendingen(url, post, uitzendingen, pgNum + 1);
+        }
     }
 
     public static String getStreamByAfleveringID(String afleveringID) {
@@ -55,7 +62,7 @@ abstract public class UitzendingGemistSite {
         //Deze cookie is op te halen op een willekeurige pagina op player.omroep.nl
         HTTPWrapper.strCookies = "";
         HTTPWrapper.Request("http://player.omroep.nl/?aflID=" + afleveringID);
-        
+
 
         /**
          *  === Ophalen Security Code ===
@@ -67,9 +74,10 @@ abstract public class UitzendingGemistSite {
 
         String securityCode = find("var securityCode = '(.*?)';", jsbestandinhoud);
 
-        if (securityCode == null)
+        if (securityCode == null) {
             PMS.minimal("SecurityCode niet kunnen vinden in javascript");
-        
+        }
+
         /**
          * === Ophalen metaplayer.xml.php ===
          */
@@ -103,9 +111,10 @@ abstract public class UitzendingGemistSite {
         PMS.minimal("Gegevens aflevering:\n" + "  Titel: " + metainfo.getTitel() + "\n" + "  Duratie: " + metainfo.getDuratie() + "\n" + "  Stream: " + metainfo.getBBStream() + "\n");
 
         String streamURL = metainfo.getBBStream();
-        if (streamURL == null)
+        if (streamURL == null) {
             PMS.minimal("Deze aflevering is niet bekend bij uitzendinggemist.nl");
-        
+        }
+
         /**
          * === Downloaden Stream Informatie ===
          */

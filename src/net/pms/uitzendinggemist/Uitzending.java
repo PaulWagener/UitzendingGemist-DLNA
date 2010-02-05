@@ -19,9 +19,15 @@ public class Uitzending extends WebStream {
 
 
     public String afleveringID;
-    public Uitzending(String name, String afleveringID) {
+
+    public Uitzending(String name, String afleveringID, long time) {
         super(name, "mms://url.url/url", null, Format.VIDEO);
         this.afleveringID = afleveringID;
+        this.lastmodified = time;
+    }
+
+    public String toString() {
+        return getName() + " (" + afleveringID + ")";
     }
 
     String mms = null;

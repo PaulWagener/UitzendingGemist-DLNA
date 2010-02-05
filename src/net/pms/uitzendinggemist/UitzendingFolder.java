@@ -6,30 +6,36 @@
 package net.pms.uitzendinggemist;
 
 import java.util.List;
-import net.pms.PMS;
 import net.pms.dlna.virtual.VirtualFolder;
-import net.pms.uitzendinggemist.Uitzending;
 import net.pms.uitzendinggemist.web.UitzendingGemistSite;
 
 /**
  *
  * @author Paul Wagener
  */
-public class OverzichtDagFolder extends VirtualFolder {
+public class UitzendingFolder extends VirtualFolder {
 
-    private String dagWaarde;
-    public OverzichtDagFolder(String dagNaam, String dagWaarde)
+    String url;
+    String post;
+
+    public UitzendingFolder(String naam, String url)
     {
-        super(dagNaam, null);
-        this.dagWaarde = dagWaarde;
+        this(naam, url, "");
+    }
+
+    public UitzendingFolder(String naam, String url, String post) {
+        super(naam, null);
+        this.url = url;
+        this.post = post;
     }
 
     @Override
     public void discoverChildren() {
         super.discoverChildren();
 
-        List<Uitzending> uitzendingen = UitzendingGemistSite.getUitzendingen("http://www.uitzendinggemist.nl/index.php/selectie?searchitem=dag&dag=" + dagWaarde);
+        List<Uitzending> uitzendingen = UitzendingGemistSite.getUitzendingen(url, post);
         for(Uitzending uitzending : uitzendingen) {
+            //System.out.println(uitzending);
             addChild(uitzending);
         }
     }
