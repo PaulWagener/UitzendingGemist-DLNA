@@ -31,7 +31,7 @@ public abstract class HTTPWrapper {
         try {
             URL url = new URL(URL);
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
-            HttpURLConnection.setFollowRedirects(false);
+            HttpURLConnection.setFollowRedirects(true);
             http.setRequestMethod(method);
             http.setRequestProperty("Host", url.getHost());
             http.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.0.3) Gecko/20060426 Firefox/1.5.0.3");

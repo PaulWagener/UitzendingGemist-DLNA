@@ -3,10 +3,10 @@ package net.pms.uitzendinggemist.web;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class StreamInfo {
+public class AsxFile {
 	private String XMLcontent;
 
-	public StreamInfo(String XMLcontent) {
+	public AsxFile(String XMLcontent) {
 		this.XMLcontent = XMLcontent;
 	}
 

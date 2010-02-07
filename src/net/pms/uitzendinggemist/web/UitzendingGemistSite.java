@@ -125,7 +125,7 @@ abstract public class UitzendingGemistSite {
         // streamserver. De stream zelf heeft een URL van het formaat
         // mms://server/etc.asf
         String streamXML = HTTPWrapper.Request(streamURL);
-        String mediastream = new StreamInfo(streamXML).getMediaStream();
+        String mediastream = new AsxFile(streamXML).getMediaStream();
 
         if (mediastream == null) {
             mediastream = streamXML;

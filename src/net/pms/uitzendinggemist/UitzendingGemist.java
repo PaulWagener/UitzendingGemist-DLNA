@@ -80,6 +80,7 @@ public class UitzendingGemist implements ExternalListener {
         mainFolder.addChild(titelFolder);
         mainFolder.addChild(genreFolder);
         mainFolder.addChild(omroepFolder);
+        mainFolder.addChild(new Nederland24Folder());
 
 
 
