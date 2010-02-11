@@ -19,12 +19,9 @@ public class UitzendingGemist implements AdditionalFolderAtRoot {
     public DLNAResource getChild() {
         VirtualFolder mainFolder = new VirtualFolder("Uitzending Gemist", null);
         mainFolder.addChild(new Omroep());
-        //RTL 4
-        //RTL 5
+        mainFolder.addChild(new RTLGemist()); // Includes all RTL channels
         mainFolder.addChild(new ProgrammaGemist("Net 5", ProgrammaGemist.NET5_URL));
-        mainFolder.addChild(new ProgrammaGemist("SBS 6", ProgrammaGemist.SBS6_URL));
-        //RTL 7
-        //RTL 8
+        mainFolder.addChild(new ProgrammaGemist("SBS 6", ProgrammaGemist.SBS6_URL));        
         mainFolder.addChild(new ProgrammaGemist("Veronica", ProgrammaGemist.VERONICA_URL));
         return mainFolder;
     }
