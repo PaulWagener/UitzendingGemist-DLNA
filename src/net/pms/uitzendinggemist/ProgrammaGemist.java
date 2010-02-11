@@ -6,8 +6,6 @@ package net.pms.uitzendinggemist;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import net.pms.configuration.RendererConfiguration;
@@ -78,7 +76,7 @@ public class ProgrammaGemist extends VirtualFolder {
             if (echteUrl == null) {
                 String pagina = HTTPWrapper.Request("http://www.sbs6.nl" + locatieUrl);
 
-                Matcher m = Pattern.compile("(?s)class=\"wmv-player-holder\" href=\"(.*?))\"").matcher(pagina);
+                Matcher m = Pattern.compile("(?s)class=\"wmv-player-holder\" href=\"(.*?)\"").matcher(pagina);
                 m.find();
 
                 this.URL = echteUrl = m.group();
