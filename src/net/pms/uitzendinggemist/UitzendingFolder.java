@@ -34,13 +34,10 @@ public class UitzendingFolder extends VirtualFolder {
         super.discoverChildren();
 
         List<Uitzending> uitzendingen = UitzendingGemistSite.getUitzendingen(url, post);
+        
         for(Uitzending uitzending : uitzendingen) {
             //System.out.println(uitzending);
             addChild(uitzending);
         }
     }
-
-
-
-
 }

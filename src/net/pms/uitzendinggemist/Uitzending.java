@@ -34,8 +34,8 @@ public class Uitzending extends WebStream {
     @Override
     public InputStream getInputStream(long low, long high, double timeseek, RendererConfiguration mediarenderer) throws IOException {
         if(mms == null)
-            this.URL = mms = UitzendingGemistSite.getStreamByAfleveringID(afleveringID);//"mms://wm-ondemand07.omroep.nl/public/ug-od/wm/2/media/wm2c4/ceres/eo/rest/2010/EO_101156954/bb.20100123.asf?wmt=4b5ba5f2&wmhash=7614ad66";
-
+            this.URL = mms = UitzendingGemistSite.getStreamByAfleveringID(afleveringID);
+        
         return super.getInputStream(low, high, timeseek, mediarenderer);
     }   
 }

@@ -20,9 +20,11 @@ public class UitzendingGemist implements AdditionalFolderAtRoot {
         VirtualFolder mainFolder = new VirtualFolder("Uitzending Gemist", null);
         mainFolder.addChild(new Omroep());
         mainFolder.addChild(new RTLGemist()); // Includes all RTL channels
-        mainFolder.addChild(new ProgrammaGemist("Net 5", ProgrammaGemist.NET5_URL));
-        mainFolder.addChild(new ProgrammaGemist("SBS 6", ProgrammaGemist.SBS6_URL));        
-        mainFolder.addChild(new ProgrammaGemist("Veronica", ProgrammaGemist.VERONICA_URL));
+
+        //Net 5 heeft nu een ander programma gemist pagina, moet nog aangepast worden
+        //mainFolder.addChild(new ProgrammaGemist("Net 5", ProgrammaGemist.NET5_URL));
+        mainFolder.addChild(new ProgrammaGemist("SBS 6", ProgrammaGemist.Site.SBS6));
+        mainFolder.addChild(new ProgrammaGemist("Veronica", ProgrammaGemist.Site.VERONICA));
         return mainFolder;
     }
 

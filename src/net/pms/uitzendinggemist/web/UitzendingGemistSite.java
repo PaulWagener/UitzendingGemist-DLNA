@@ -35,9 +35,12 @@ abstract public class UitzendingGemistSite {
 
     private static void addUitzendingen(String url, String post, List<Uitzending> uitzendingen, int pgNum) {
         String lijstPagina = HTTPWrapper.Request(url + "&pgNum=" + pgNum, post);
-        Matcher m = Pattern.compile("<td[^<]*?><a[^<]*?md5=.*?>(.*?)</a>.*?<td.*?>(.*?)</td>.*?<a href=\"http://player.omroep.nl/\\?aflID=(.*?)\"", Pattern.DOTALL).matcher(lijstPagina);
+        
+        Matcher m = Pattern.compile("<a[^<]*?md5=.*?>([^<]+?)</a>.*?<td.*?>(.*?)</td>.*?<a href=\"http://player.omroep.nl/\\?aflID=(.*?)\"", Pattern.DOTALL).matcher(lijstPagina);
 
+        
         while (m.find()) {
+        
             long time = 0;
             try {
                 time = new SimpleDateFormat("dd-MM-yyyy").parse(m.group(2)).getTime();
@@ -124,12 +127,7 @@ abstract public class UitzendingGemistSite {
         // eigenlijk een klein bestand is met een verwijzing naar de
         // streamserver. De stream zelf heeft een URL van het formaat
         // mms://server/etc.asf
-        String streamXML = HTTPWrapper.Request(streamURL);
-        String mediastream = new AsxFile(streamXML).getMediaStream();
-
-        if (mediastream == null) {
-            mediastream = streamXML;
-        }
+        String mediastream = new AsxFile(streamURL).getMediaStream();
 
         PMS.minimal("mediastream: " + mediastream);
 

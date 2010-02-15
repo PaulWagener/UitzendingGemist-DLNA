@@ -4,10 +4,7 @@
  */
 package net.pms.uitzendinggemist;
 
-import javax.swing.JComponent;
-import net.pms.configuration.RendererConfiguration;
 import net.pms.dlna.virtual.VirtualFolder;
-import net.pms.external.ExternalListener;
 
 /**
  *
@@ -28,7 +25,8 @@ public class Omroep extends VirtualFolder {
     @Override
     public void discoverChildren() {
         super.discoverChildren();
-    
+
+        //Deze week
         VirtualFolder dezeweekFolder = new VirtualFolder("Deze week", null);
         dezeweekFolder.addChild(new UitzendingFolder("Vandaag", DAG_URL + "vandaag"));
         dezeweekFolder.addChild(new UitzendingFolder("Gisteren", DAG_URL + "gisteren"));
