@@ -33,7 +33,7 @@ public class Nederland24Folder extends VirtualFolder {
 
         while (m.find()) {
             String name = m.group(1);
-            String stream = new AsxFile(HTTPWrapper.Request(m.group(2))).getMediaStream();
+            String stream = new AsxFile(m.group(2)).getMediaStream();
             String img = "http://slplayer.nederland24.nl/xml/" + m.group(3);
             //System.out.println(name + " " + stream + " " + img);
             addChild(new WebStream(name, stream, img, Format.VIDEO));
