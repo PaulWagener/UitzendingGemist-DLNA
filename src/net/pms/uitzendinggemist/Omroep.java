@@ -4,7 +4,14 @@
  */
 package net.pms.uitzendinggemist;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import net.pms.dlna.virtual.VirtualFolder;
+import net.pms.uitzendinggemist.web.HTTPWrapper;
 
 /**
  *
@@ -20,8 +27,7 @@ public class Omroep extends VirtualFolder {
         super("Publieke Omroep", null);
     }
 
-
-
+    
     @Override
     public void discoverChildren() {
         super.discoverChildren();
@@ -48,34 +54,40 @@ public class Omroep extends VirtualFolder {
             titelFolder.addChild(folder);
         }
 
+        String homePagina = HTTPWrapper.Request("http://www.uitzendinggemist.nl/");
+ 
+        
         //Op genre
-        final String[][] genres = {{"1", "Amusement"}, {"2", "Animatie"}, {"3", "Comedy"}, {"4", "Documentaire"},
-            {"21", "Drama"}, {"24", "Educatief"}, {"5", "Erotiek"}, {"6", "Film"},
-            {"27", "Gezondheid"}, {"7", "Informatief"}, {"8", "Jeugd"}, {"25", "Kinderen 2-5"},
-            {"26", "Kinderen 6-12"}, {"23", "Klassiek"}, {"9", "Kunst/Cultuur"}, {"19", "Maatschappij"},
-            {"10", "Misdaad"}, {"11", "Muziek"}, {"12", "Natuur"}, {"13", "Nieuws/actualiteiten"},
-            {"14", "Overige"}, {"15", "Religieus"}, {"16", "Serie/soap"}, {"17", "Sport"}, {"18", "Wetenschap"}};
+        Matcher m = Pattern.compile("(?s)name=\"genre\"(.*?)</select>").matcher(homePagina);
+        m.find();
+        m = Pattern.compile("(?s)<option value=\"(.*?)\".*?>(.*?)</option>").matcher(m.group(1));
 
         VirtualFolder genreFolder = new VirtualFolder("Op genre", null);
-        for (int i = 0; i < genres.length; i++) {
-            final String url = SELECTIE_URL + "?searchitem=genre&genre=" + genres[i][0];
-            UitzendingFolder folder = new UitzendingFolder(genres[i][1], url, "items=actueel");
+        while(m.find()) {
+            if(m.group(1).equals(""))
+                continue;
+            
+            final String url = SELECTIE_URL + "?searchitem=genre&genre=" + m.group(1);
+            UitzendingFolder folder = new UitzendingFolder(m.group(2), url, "items=actueel");
             folder.addChild(new UitzendingFolder("Alle programma's", url));
             genreFolder.addChild(folder);
         }
-
+        
         //Op omroep
-        final String[][] omroepen = {
-            {"33", "3FM"}, {"11", "AVRO"}, {"16", "BNN"}, {"7", "BOS"}, {"15", "EO"}, {"29", "HUMAN"}, {"3", "IKON"}, {"48", "Joodse Omroep"}, {"2", "KRO"},
-            {"45", "LLiNK"}, {"46", "MAX"}, {"52", "MTNL"}, {"8", "NCRV"}, {"55", "Nederland 1"}, {"56", "Nederland 2"},
-            {"21", "Nederland 3"}, {"49", "NIO"}, {"4", "NMO"}, {"12", "NOS"}, {"22", "NPS"}, {"5", "OHM"},
-            {"50", "Omroep-nl"}, {"6", "OMROP FRYSLAN"}, {"32", "Radio 2"}, {"27", "Radio 4"}, {"1", "RKK"}, {"25", "RNW"}, {"23", "RVU"}, {"43", "TELEAC"},
-            {"14", "TROS"}, {"17", "VARA"}, {"20", "VPRO"}, {"47", "Z@pp"}, {"19", "Z@ppelin"}, {"28", "ZvK"}};
+        m = Pattern.compile("(?s)name=\"omroep\"(.*?)</select>").matcher(homePagina);
+        m.find();
+        m = Pattern.compile("(?s)<option value=\"(.*?)\".*?>(.*?)</option>").matcher(m.group(1));
 
+        
         VirtualFolder omroepFolder = new VirtualFolder("Op omroep", null);
-        for (int i = 0; i < omroepen.length; i++) {
-            final String url = SELECTIE_URL + "?searchitem=omroep&omroep=" + omroepen[i][0];
-            UitzendingFolder folder = new UitzendingFolder(omroepen[i][1], url, "items=actueel");
+        while(m.find()) {
+            if(m.group(1).equals(""))
+                continue;
+
+            final String logo = "http://u.uitzendinggemist.nl/pics/omroepen/" + m.group(2).replaceAll(" ", "").replaceAll("@", "a").toLowerCase() + "-logo.jpg";
+            final String url = SELECTIE_URL + "?searchitem=omroep&omroep=" + m.group(1);
+            
+            UitzendingFolder folder = new UitzendingFolder(m.group(2), url, "items=actueel");
             folder.addChild(new UitzendingFolder("Alle programma's", url));
             omroepFolder.addChild(folder);
         }
@@ -85,6 +97,20 @@ public class Omroep extends VirtualFolder {
         addChild(genreFolder);
         addChild(omroepFolder);
         addChild(new Nederland24Folder());
-
     }
+
+    public static void main(String args[]) {
+        new Omroep().discoverChildren();
+    }
+
+    @Override
+    public InputStream getThumbnailInputStream() {
+        try {
+            return this.downloadAndSend("http://assets.www.omroep.nl/images/footer-logo.png", true);
+        } catch (IOException ex) {
+            return super.getThumbnailInputStream();
+        }
+    }
+
+
 }

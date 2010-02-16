@@ -50,15 +50,16 @@ public class ProgrammaGemist extends VirtualFolder {
         }
 
     }
-    public ProgrammaGemist(String naam, Site site) {
-        this(naam, site, site.getStartUrl(), site.getLogo(), false);
-    }
-    
+
     Site site;
     boolean losseAfleveringen;
     String url;
     String imgUrl;
-
+    
+    public ProgrammaGemist(String naam, Site site) {
+        this(naam, site, site.getStartUrl(), site.getLogo(), false);
+    }
+    
     public ProgrammaGemist(String naam, Site site, String url, String imgUrl, boolean losseAfleveringen) {
         super(naam, null);
         this.site = site;
@@ -75,31 +76,24 @@ public class ProgrammaGemist extends VirtualFolder {
             return super.getThumbnailInputStream();
         }
     }
-
-    @Override
-    public String getThumbnailContentType() {
-        return HTTPResource.JPEG_TYPEMIME;
-    }
-
     
 
     @Override
     public void discoverChildren() {
         super.discoverChildren();
 
-        PMS.minimal(url);
         String programmaPagina = HTTPWrapper.Request(url);
 
-        //PMS.minimal(programmaPagina);
-        //Filter op overzicht
+        //Filter op alleen de pagina's in het overzicht
         Matcher m1 = Pattern.compile("(?s)(Programma gemist overzicht|Bekijk alle afleveringen).*?class=\"bottom\"").matcher(programmaPagina);
         if (m1.find()) {
             programmaPagina = m1.group();
         }
 
-        //Zoek shows
+        //Zoek shows / afleveringen
         Matcher m = Pattern.compile("(?s)class=\"thumb\".*?href=\"(/web/show.*?)\".*?src=\"(.*?)\".*?<span>(.*?)</span>").matcher(programmaPagina);
 
+        //TODO: loop 'volgende' links af
         while (m.find()) {
             String programmaUrl = site.base + m.group(1);
             String img = m.group(2);
@@ -111,16 +105,16 @@ public class ProgrammaGemist extends VirtualFolder {
             if (losseAfleveringen) {
                 addChild(new ProgrammaStream(programmaNaam, programmaUrl, img));
             } else {
-                PMS.minimal(img);
                 addChild(new ProgrammaGemist(programmaNaam, site, programmaUrl, img, true));
             }
 
         }
     }
 
+    //Stream die vlak voor afspelen de .URL goed zet
     public class ProgrammaStream extends WebStream {
         String locatieUrl; //Webpagina waar filmpje te bekijken is
-        String echteUrl = null; //URL van wmv file
+        String mms = null; //mms stream
 
         public ProgrammaStream(String naam, String url, String img) {
             super(naam, "mms://url.url/url", img, Format.VIDEO);
@@ -130,14 +124,14 @@ public class ProgrammaGemist extends VirtualFolder {
 
         @Override
         public InputStream getInputStream(long low, long high, double timeseek, RendererConfiguration mediarenderer) throws IOException {
-            if (echteUrl == null) {
+            if (mms == null) {
                 String pagina = HTTPWrapper.Request(locatieUrl);
 
                 Matcher m = Pattern.compile("(?s)class=\"wmv-player-holder\" href=\"(.*?)\"").matcher(pagina);
                 m.find();
 
                 //WMV file is altijd maar een verwijzing naar mms:// url die er in zit
-                this.URL = echteUrl = new AsxFile(m.group(1)).getMediaStream();
+                this.URL = mms = new AsxFile(m.group(1)).getMediaStream();
                 PMS.minimal("Mediastream: " + URL);
             }
 
