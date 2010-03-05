@@ -5,9 +5,7 @@
 
 package net.pms.uitzendinggemist;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import net.pms.dlna.DLNAResource;
+import java.util.regex.MatchResult;
 import net.pms.dlna.WebStream;
 import net.pms.dlna.virtual.VirtualFolder;
 import net.pms.formats.Format;
@@ -29,14 +27,12 @@ public class Nederland24Folder extends VirtualFolder {
         super.discoverChildren();
 
         String streamsXml = HTTPWrapper.Request("http://slplayer.nederland24.nl/xml/channel.xml");
-        Matcher m = Pattern.compile("(?s)<channel.*?<name><!\\[CDATA\\[(.*?)\\]\\]>.*?<breedband>(.*?)</breedband>.*?<logo>(.*?)</logo>").matcher(streamsXml);
-
-        while (m.find()) {
-            String name = m.group(1);
+        
+        for(MatchResult m : Regex.all("<channel.*?<name><!\\[CDATA\\[(.*?)\\]\\]>.*?<breedband>(.*?)</breedband>.*?<logo>(.*?)</logo>", streamsXml)) {
+            String naam = m.group(1);
             String stream = new AsxFile(m.group(2)).getMediaStream();
             String img = "http://slplayer.nederland24.nl/xml/" + m.group(3);
-            //System.out.println(name + " " + stream + " " + img);
-            addChild(new WebStream(name, stream, img, Format.VIDEO));
+            addChild(new WebStream(naam, stream, img, Format.VIDEO));
         }
     }
 

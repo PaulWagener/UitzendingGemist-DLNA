@@ -8,8 +8,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import net.pms.PMS;
 import net.pms.dlna.virtual.VirtualFolder;
 import net.pms.uitzendinggemist.web.HTTPWrapper;
 
@@ -25,6 +27,15 @@ public class Omroep extends VirtualFolder {
 
     public Omroep() {
         super("Publieke Omroep", null);
+    }
+
+    @Override
+    public InputStream getThumbnailInputStream() {
+        try {
+            return this.downloadAndSend("http://assets.www.omroep.nl/images/footer-logo.png", true);
+        } catch (IOException ex) {
+            return super.getThumbnailInputStream();
+        }
     }
 
     
@@ -49,7 +60,7 @@ public class Omroep extends VirtualFolder {
 
         String alfabet = "#ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         for (int i = 0; i < alfabet.length(); i++) {
-            UitzendingFolder folder = new UitzendingFolder(alfabet.charAt(i) == '#' ? "0-9" : "" + alfabet.charAt(i), TITEL_URL + i, "items=actueel");
+            UitzendingFolder folder = new UitzendingFolder(alfabet.charAt(i) == '#' ? "0-9" : ""+alfabet.charAt(i), TITEL_URL + i, "items=actueel");
             folder.addChild(new UitzendingFolder("Alle programma's", TITEL_URL + i));
             titelFolder.addChild(folder);
         }
@@ -58,12 +69,12 @@ public class Omroep extends VirtualFolder {
  
         
         //Op genre
-        Matcher m = Pattern.compile("(?s)name=\"genre\"(.*?)</select>").matcher(homePagina);
-        m.find();
-        m = Pattern.compile("(?s)<option value=\"(.*?)\".*?>(.*?)</option>").matcher(m.group(1));
-
+        
+        String genres = Regex.get("name=\"genre\"(.*?)</select>", homePagina);
+        
         VirtualFolder genreFolder = new VirtualFolder("Op genre", null);
-        while(m.find()) {
+        
+        for(MatchResult m : Regex.all("<option value=\"(.*?)\".*?>(.*?)</option>", genres)) {
             if(m.group(1).equals(""))
                 continue;
             
@@ -74,20 +85,18 @@ public class Omroep extends VirtualFolder {
         }
         
         //Op omroep
-        m = Pattern.compile("(?s)name=\"omroep\"(.*?)</select>").matcher(homePagina);
-        m.find();
-        m = Pattern.compile("(?s)<option value=\"(.*?)\".*?>(.*?)</option>").matcher(m.group(1));
-
+        String omroepen = Regex.get("name=\"omroep\"(.*?)</select>", homePagina);
         
         VirtualFolder omroepFolder = new VirtualFolder("Op omroep", null);
-        while(m.find()) {
+        for(MatchResult m : Regex.all("<option value=\"(.*?)\".*?>(.*?)</option>", omroepen))
+        {
             if(m.group(1).equals(""))
                 continue;
 
             final String logo = "http://u.uitzendinggemist.nl/pics/omroepen/" + m.group(2).replaceAll(" ", "").replaceAll("@", "a").toLowerCase() + "-logo.jpg";
             final String url = SELECTIE_URL + "?searchitem=omroep&omroep=" + m.group(1);
             
-            UitzendingFolder folder = new UitzendingFolder(m.group(2), url, "items=actueel");
+            UitzendingFolder folder = new UitzendingFolder(m.group(2), url, "items=actueel", logo);
             folder.addChild(new UitzendingFolder("Alle programma's", url));
             omroepFolder.addChild(folder);
         }
@@ -102,15 +111,4 @@ public class Omroep extends VirtualFolder {
     public static void main(String args[]) {
         new Omroep().discoverChildren();
     }
-
-    @Override
-    public InputStream getThumbnailInputStream() {
-        try {
-            return this.downloadAndSend("http://assets.www.omroep.nl/images/footer-logo.png", true);
-        } catch (IOException ex) {
-            return super.getThumbnailInputStream();
-        }
-    }
-
-
 }

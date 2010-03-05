@@ -37,6 +37,10 @@ public class MetaplayerInfo {
 		return find("<tite>(.*?)</tite>");
 	}
 
+        public String getIcon() {
+		return find("<icon>(.*?)</icon>");
+	}
+
 	public String getDuratie() {
 		return find("<duration>(.*?)</duration>");
 	}
