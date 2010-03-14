@@ -12,6 +12,7 @@ import net.pms.PMS;
 public abstract class HTTPWrapper {
 
     public static String strCookies = "";
+    public static int responseCode = 0;
     private static String strHTML = "";
 
     public static String Request(String URL) {
@@ -56,6 +57,7 @@ public abstract class HTTPWrapper {
                 writePost.flush();
             }
             http.connect();
+            responseCode = http.getResponseCode();
             String encoding = http.getContentEncoding();
             InputStream receiving = null;
             if ("gzip".equalsIgnoreCase(encoding)) {

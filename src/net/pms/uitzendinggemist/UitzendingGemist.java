@@ -30,12 +30,10 @@ public class UitzendingGemist implements AdditionalFolderAtRoot {
                     return super.getThumbnailInputStream();
                 }
             }
-
         };
         mainFolder.addChild(new Omroep());
         mainFolder.addChild(new RTLGemist()); // Includes all RTL channels
 
-        //Net 5 heeft nu een ander programma gemist pagina, moet nog aangepast worden
         mainFolder.addChild(new ProgrammaGemist("Net 5", ProgrammaGemist.Site.NET5));
         mainFolder.addChild(new ProgrammaGemist("SBS 6", ProgrammaGemist.Site.SBS6));
         mainFolder.addChild(new ProgrammaGemist("Veronica", ProgrammaGemist.Site.VERONICA));
