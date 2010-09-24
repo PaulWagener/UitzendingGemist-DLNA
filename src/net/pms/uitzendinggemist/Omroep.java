@@ -6,12 +6,7 @@ package net.pms.uitzendinggemist;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.MatchResult;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import net.pms.PMS;
 import net.pms.dlna.virtual.VirtualFolder;
 import net.pms.uitzendinggemist.web.HTTPWrapper;
 

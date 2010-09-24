@@ -1,18 +1,13 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package net.pms.uitzendinggemist;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Utility class to streamline the usage of Regular Expressions *
+ * Utility class to streamline the usage of Regular Expressions
  *
  * @author paulwagener
  */
@@ -20,6 +15,7 @@ public abstract class Regex {
 
     /**
      * Return the first matched group in a text
+     * 
      * @param pattern
      * @param text
      * @return
@@ -32,6 +28,13 @@ public abstract class Regex {
             return null;
     }
 
+    /**
+     * Maak een lijst van alle gematchede results om makkelijk doorheen te itereren.
+     *
+     * @param pattern
+     * @param text
+     * @return
+     */
     public static List<MatchResult> all(String pattern, String text) {
         List<MatchResult> results = new ArrayList<MatchResult>();
 

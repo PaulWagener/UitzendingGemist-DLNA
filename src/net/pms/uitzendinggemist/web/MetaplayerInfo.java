@@ -12,36 +12,39 @@ import java.util.regex.Pattern;
  */
 public class MetaplayerInfo {
 
-	private String XMLcontent;
+    private String XMLcontent;
 
-	public MetaplayerInfo(String XMLcontent) {
-		this.XMLcontent = XMLcontent;
-	}
+    public MetaplayerInfo(String XMLcontent) {
+        this.XMLcontent = XMLcontent;
+    }
 
-	private String find(String regex) {
-		Matcher m = Pattern.compile(regex, Pattern.DOTALL).matcher(XMLcontent);
-		if (!m.find())
-			return null;
-		return m.group(1).trim();
-	}
+    private String find(String regex) {
+        Matcher m = Pattern.compile(regex, Pattern.DOTALL).matcher(XMLcontent);
+        if (!m.find()) {
+            return null;
+        }
+        return m.group(1).trim();
+    }
 
-	public String getBBStream() {
-		return find("<stream .*?bb.*?wmv.*?>(.*?)</stream>");
-	}
+    public String getStream() {
+        //Probeer eerst hogekwaliteits stream te zoeken
+        String stream = find("<stream compressie_kwaliteit='std' compressie_formaat='wvc1'>(.*?)</stream>");
 
-	public String getSBStream() {
-		return find("<stream .*?sb.*?wmv.*?>(.*?)</stream>");
-	}
+        if (stream == null) {
+            stream = find("<stream .*?bb.*?wmv.*?>(.*?)</stream>");
+        }
+        return stream;
+    }
 
-	public String getTitel() {
-		return find("<tite>(.*?)</tite>");
-	}
+    public String getTitel() {
+        return find("<tite>(.*?)</tite>");
+    }
 
-        public String getIcon() {
-		return find("<icon>(.*?)</icon>");
-	}
+    public String getIcon() {
+        return find("<icon>(.*?)</icon>");
+    }
 
-	public String getDuratie() {
-		return find("<duration>(.*?)</duration>");
-	}
+    public String getDuratie() {
+        return find("<duration>(.*?)</duration>");
+    }
 }

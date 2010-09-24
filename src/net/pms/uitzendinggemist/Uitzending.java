@@ -34,9 +34,14 @@ public class Uitzending extends WebStream {
     public InputStream getInputStream(long low, long high, double timeseek, RendererConfiguration mediarenderer) throws IOException {
         if (mms == null) {
             MetaplayerInfo info = getMetaInfo();
-            PMS.minimal("Gegevens aflevering:\n" + "  Titel: " + info.getTitel() + "\n" + "  Duratie: " + info.getDuratie() + "\n" + "  Stream: " + info.getBBStream() + "\n");
+            PMS.minimal("Gegevens aflevering:\n" + "  Titel: " + info.getTitel() + "\n" + "  Duratie: " + info.getDuratie() + "\n" + "  Stream: " + info.getStream() + "\n");
+
+            String stream = info.getStream();
+
             
-            String stream = new AsxFile(info.getBBStream()).getMediaStream();
+            if(stream.startsWith("http://"))
+                stream = new AsxFile(stream).getMediaStream();
+
             PMS.minimal("Stream: " + stream);
             this.URL = mms = stream;
         }
