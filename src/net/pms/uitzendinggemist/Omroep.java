@@ -27,7 +27,7 @@ public class Omroep extends VirtualFolder {
     @Override
     public InputStream getThumbnailInputStream() {
         try {
-            return this.downloadAndSend("http://assets.www.omroep.nl/images/footer-logo.png", true);
+            return this.downloadAndSend("http://assets.www.publiekeomroep.nl/images/footer-logo.png", true);
         } catch (IOException ex) {
             return super.getThumbnailInputStream();
         }
