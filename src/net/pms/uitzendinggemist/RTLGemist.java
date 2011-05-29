@@ -2,17 +2,20 @@ package net.pms.uitzendinggemist;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.MatchResult;
-import net.pms.PMS;
-import net.pms.configuration.RendererConfiguration;
 import net.pms.dlna.WebStream;
 import net.pms.dlna.virtual.VirtualFolder;
 import net.pms.formats.Format;
 import net.pms.uitzendinggemist.web.HTTPWrapper;
-import org.apache.commons.lang.StringEscapeUtils;
 
 /**
  * Browse door alle programma's die op rtl.nl staan
@@ -20,6 +23,10 @@ import org.apache.commons.lang.StringEscapeUtils;
  * @author Paul Wagener
  */
 public class RTLGemist extends VirtualFolder {
+
+    public static void main(String args[]) {
+        new RTLGemist().discoverChildren();
+    }
 
     public RTLGemist() {
         super("RTL", null);
@@ -43,37 +50,68 @@ public class RTLGemist extends VirtualFolder {
      */
     @Override
     public void discoverChildren() {
-        super.discoverChildren();
+        //super.discoverChildren();
 
-        //Deze week
-        //Geeft een lijst van afleveringen op: http://www.rtl.nl/service/gemist/home/
-        addChild(new RtlDagFolder("Zaterdag"));
-        addChild(new RtlDagFolder("Zondag"));
-        addChild(new RtlDagFolder("Maandag"));
-        addChild(new RtlDagFolder("Dinsdag"));
-        addChild(new RtlDagFolder("Woensdag"));
-        addChild(new RtlDagFolder("Donderdag"));
-        addChild(new RtlDagFolder("Vrijdag"));
+        Map<Date, VirtualFolder> datums = new HashMap<Date, VirtualFolder>();
+        Map<String, VirtualFolder> series = new HashMap<String, VirtualFolder>();
 
-    }
-    static class RtlDagFolder extends VirtualFolder {
+        String xml = HTTPWrapper.Request("http://iptv.rtl.nl/xl/VideoItem/IpadXML");
+        int i = 0;
+        for (MatchResult m : Regex.all("<item>.*?<title>(.*?)</title>.*?<broadcastdatetime>(.*?)</broadcastdatetime>"
+                + ".*?<thumbnail>(.*?)</thumbnail>.*?<movie>(.*?)</movie>.*?<serienaam>(.*?)</serienaam>.*?<classname>(.*?)</classname>", xml)) {
+            String titel = m.group(1);
 
-        public RtlDagFolder(String naam) {
-            super(naam, null);
-            
-        }
-        
-        @Override
-        public void discoverChildren() {
-            super.discoverChildren();
-            String videomenu = HTTPWrapper.Request("http://antonboonstra.nl/rtlgemist/?" + this.getName().toLowerCase());
-
-            for (MatchResult m : Regex.all("<li onclick=\"javascript:location.href='(.*?)';\">(<img.*?br>)?([^>]*?)<br>", videomenu)) {
-                String url = m.group(1);
-                String naam = m.group(3).replace("&amp;", "&");
-
-                addChild(new WebStream(naam, url, null, Format.VIDEO));
+            String uitzendtijd = m.group(2).substring(0, 10).trim();
+            String thumb = m.group(3).trim();
+            String movie = m.group(4).trim();
+            String serienaam = m.group(5).trim();
+            String classname = m.group(6).trim();
+            if (classname.equals("eps_fragment")) {
+                continue;
             }
+
+            
+            //Voeg toe aan datum
+            Date d = null;
+            try {
+                d = new SimpleDateFormat("yyyy-MM-dd").parse(uitzendtijd);
+            } catch (ParseException ex) {
+                Logger.getLogger(RTLGemist.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            String uitzendtijdNL = new SimpleDateFormat("EEEE d MMMM").format(d);
+
+            if (!datums.containsKey(d)) {
+                datums.put(d, new VirtualFolder(uitzendtijdNL, null));
+            }
+            datums.get(d).addChild(new WebStream(titel, movie, thumb, Format.VIDEO));
+
+            //Voeg toe aan serie
+            if(!series.containsKey(serienaam)) {
+                series.put(serienaam, new VirtualFolder(serienaam, null));
+            }
+            series.get(serienaam).addChild(new WebStream(titel, movie, thumb, Format.VIDEO));
         }
+
+        VirtualFolder datumfolder = new VirtualFolder("Op datum", null);
+        VirtualFolder seriefolder = new VirtualFolder("Op serie", null);
+
+
+        ArrayList<Date> datumnamen = new ArrayList<Date>(datums.keySet());
+        Collections.sort(datumnamen);
+        Collections.reverse(datumnamen);
+        
+        for(Date datum : datumnamen) {
+            datumfolder.addChild(datums.get(datum));
+        }
+
+        ArrayList<String> serienamen = new ArrayList<String>(series.keySet());
+        Collections.sort(serienamen);
+
+        for(String serienaam : serienamen) {
+            seriefolder.addChild(series.get(serienaam));
+        }
+
+        this.addChild(datumfolder);
+        this.addChild(seriefolder);
     }
 }
