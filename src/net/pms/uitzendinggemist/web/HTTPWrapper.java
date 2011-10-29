@@ -1,5 +1,6 @@
 package net.pms.uitzendinggemist.web;
 
+import java.io.DataOutputStream;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
@@ -7,7 +8,7 @@ import java.net.URL;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
-import net.pms.PMS;
+import org.slf4j.LoggerFactory;
 
 public abstract class HTTPWrapper {
 
@@ -16,15 +17,16 @@ public abstract class HTTPWrapper {
     private static String strHTML = "";
 
     public static String Request(String URL) {
-        return Request(URL, "", "");
+        return Request(URL, "".getBytes(), "");
     }
 
-    public static String Request(String URL, String PostData) {
+    public static String Request(String URL, byte[] PostData) {
         return Request(URL, PostData, "");
     }
-    public static String Request(String URL, String PostData, String Referer) {
+
+    public static String Request(String URL, byte[] PostData, String Referer) {
         String method;
-        if (!PostData.equals("")) {
+        if (PostData.length != 0) {
             method = "POST";
         } else {
             method = "GET";
@@ -50,11 +52,9 @@ public abstract class HTTPWrapper {
             }
             if (method.equals("POST")) {
                 http.setDoOutput(true);
-                http.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-                http.setRequestProperty("Content-Length", "" + PostData.length());
-                OutputStreamWriter writePost = new OutputStreamWriter(http.getOutputStream());
-                writePost.write(PostData);
-                writePost.flush();
+                http.setRequestProperty("Content-Type", "application/x-data");
+                
+                http.getOutputStream().write(PostData);
             }
             http.connect();
             responseCode = http.getResponseCode();
@@ -67,11 +67,18 @@ public abstract class HTTPWrapper {
             } else {
                 receiving = http.getInputStream();
             }
-            int intReceived;
-            StringBuffer strBuffer = new StringBuffer();
-            while ((intReceived = receiving.read()) != -1) {
+            StringBuilder strBuffer = new StringBuilder();
+            int intReceived = receiving.read();
+            while (intReceived != -1) {
                 strBuffer.append((char) intReceived);
+                
+                try {
+                    intReceived = receiving.read();
+                } catch (Exception e) {
+                    intReceived = -1;
+                }
             }
+
             receiving.close();
             strHTML = strBuffer.toString();
             strBuffer.delete(0, strBuffer.length());
@@ -97,7 +104,7 @@ public abstract class HTTPWrapper {
             }
             strCookies = strBuffer.toString();
         } catch (Exception e) {
-            PMS.error("HTTP error:", e);
+            LoggerFactory.getLogger(HTTPWrapper.class).error("HTTP error: ", e);
         }
         return strHTML;
     }

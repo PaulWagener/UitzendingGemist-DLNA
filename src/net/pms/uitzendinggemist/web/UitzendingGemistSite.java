@@ -33,7 +33,7 @@ abstract public class UitzendingGemistSite {
     }
 
     private static void addUitzendingen(String url, String post, List<Uitzending> uitzendingen, int pgNum) {
-        String lijstPagina = HTTPWrapper.Request(url + "&pgNum=" + pgNum, post);
+        String lijstPagina = HTTPWrapper.Request(url + "&pgNum=" + pgNum, post.getBytes());
         
         Matcher m = Pattern.compile("<a[^<]*?md5=.*?>([^<]+?)</a>.*?<td.*?>(.*?)</td>.*?<a href=\"http://player.omroep.nl/\\?aflID=(.*?)\"", Pattern.DOTALL).matcher(lijstPagina);
 

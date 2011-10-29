@@ -8,11 +8,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import net.pms.PMS;
 import net.pms.configuration.RendererConfiguration;
+import net.pms.dlna.Range;
 import net.pms.dlna.WebStream;
 import net.pms.formats.Format;
 import net.pms.uitzendinggemist.web.AsxFile;
 import net.pms.uitzendinggemist.web.HTTPWrapper;
 import net.pms.uitzendinggemist.web.MetaplayerInfo;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -27,25 +29,24 @@ public class Uitzending extends WebStream {
         this.afleveringID = afleveringID;
         this.lastmodified = time;
     }
-
     String mms = null;
 
     @Override
-    public InputStream getInputStream(long low, long high, double timeseek, RendererConfiguration mediarenderer) throws IOException {
+    public InputStream getInputStream(Range range, RendererConfiguration mediarenderer) throws IOException {
         if (mms == null) {
             MetaplayerInfo info = getMetaInfo();
-            PMS.minimal("Gegevens aflevering:\n" + "  Titel: " + info.getTitel() + "\n" + "  Duratie: " + info.getDuratie() + "\n" + "  Stream: " + info.getStream() + "\n");
-
+            LoggerFactory.getLogger(Uitzending.class).info("Gegevens aflevering:\n" + "  Titel: " + info.getTitel() + "\n" + "  Duratie: " + info.getDuratie() + "\n" + "  Stream: " + info.getStream() + "\n");
             String stream = info.getStream();
 
-            
-            if(stream.startsWith("http://"))
-                stream = new AsxFile(stream).getMediaStream();
 
-            PMS.minimal("Stream: " + stream);
-            this.URL = mms = stream;
+            if (stream.startsWith("http://")) {
+                stream = new AsxFile(stream).getMediaStream();
+            }
+           
+            LoggerFactory.getLogger(Uitzending.class).info("Stream: " + stream);
+            this.url = mms = stream;
         }
-        return super.getInputStream(low, high, timeseek, mediarenderer);
+        return super.getInputStream(range, mediarenderer);
     }
 
     @Override
@@ -56,7 +57,7 @@ public class Uitzending extends WebStream {
         } else {
             return super.getThumbnailInputStream();
         }
-    }    
+    }
 
     MetaplayerInfo info;
 
@@ -85,7 +86,7 @@ public class Uitzending extends WebStream {
         String securityCode = Regex.get("var securityCode = '(.*?)';", jsbestandinhoud);
 
         if (securityCode == null) {
-            PMS.minimal("SecurityCode niet kunnen vinden in javascript");
+            LoggerFactory.getLogger(Uitzending.class).info("SecurityCode niet kunnen vinden in javascript");
         }
         /**
          * === Ophalen metaplayer.xml.php ===
@@ -114,7 +115,7 @@ public class Uitzending extends WebStream {
 
         // Haal de gegevens van metaplayerXML op
         String metaXML = HTTPWrapper.Request(metaplayerURL);
-        
+
         //Print info over aflevering
         this.info = new MetaplayerInfo(metaXML);
         return info;
