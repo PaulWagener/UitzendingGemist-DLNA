@@ -66,37 +66,6 @@ public class ProgrammaGemist extends VirtualFolder {
         0x74, 0x76, 0x2E, 0x6E, 0x6C, 0x2F};
 
     public static void main(String args[]) {
-        //Zoek videoPlayer variabele in source
-        String masterchef = HTTPWrapper.Request("http://www.sbs6.nl/programmas/trauma-centrum/videos/seizoen-0/aflevering-345/trauma-centrum-345");
-        String videoPlayerIdString = Regex.get("videoPlayer\\\\\" value=\\\\\"([0-9]+)\\\\\"", masterchef);
-        double videoPlayerId = Double.parseDouble(videoPlayerIdString);
-
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-
-
-        try {
-            DataOutputStream k = new DataOutputStream(byteArrayOutputStream);
-
-            for (int i = 0; i < bytes1.length; i++) {
-                k.write(bytes1[i]);
-            }
-
-            k.writeDouble(videoPlayerId);
-
-            for (int i = 0; i < bytes2.length; i++) {
-                k.write(bytes2[i]);
-            }
-
-            k.flush();
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
-        }
-        byte bbb[] = byteArrayOutputStream.toByteArray();
-
-        String asmSource = HTTPWrapper.Request("http://c.brightcove.com/services/messagebroker/amf?playerKey=AQ~~,AAAAiDenBUk~,YtnxvBxGO03Av9rrC3VWH6HYBg87UE0I", bbb);
-        String rtmpStream = Regex.get("(rtmp://.*?\\.mp4)", asmSource);
-        rtmpStream = rtmpStream.replace("&", "");
-        System.out.println(rtmpStream);
     }
 
     /**
@@ -148,8 +117,6 @@ public class ProgrammaGemist extends VirtualFolder {
             pageSource = HTTPWrapper.Request(site.base + pageLink);
 
             //Voeg alle series op de page toe
-
-
             for (MatchResult serie : Regex.all("<img src=\"(.*?)\".*?<h2><a href=\"(.*?)\">(.*?)</a>", pageSource)) {
                 addChild(new Serie(serie.group(3), serie.group(2), serie.group(1), true, site));
             }
@@ -259,7 +226,7 @@ public class ProgrammaGemist extends VirtualFolder {
             String asmSource = HTTPWrapper.Request("http://c.brightcove.com/services/messagebroker/amf?playerKey=AQ~~,AAAAiDenBUk~,YtnxvBxGO03Av9rrC3VWH6HYBg87UE0I", bbb);
             String rtmpStream = Regex.get("(rtmp://.*?\\.mp4)", asmSource);
             rtmpStream = rtmpStream.replace("&", "");
-            
+
             this.url = rtmpStream;
 
             return super.getInputStream(range, mediarenderer);
