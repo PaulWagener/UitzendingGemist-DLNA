@@ -26,7 +26,7 @@ public class UitzendingGemist implements AdditionalFolderAtRoot {
                 }
             }
         };
-        mainFolder.addChild(new Omroep());
+        mainFolder.addChild(new PubliekeOmroep());
         mainFolder.addChild(new RTLGemist()); // Includes all RTL channels
 
         mainFolder.addChild(new ProgrammaGemist("Net 5", ProgrammaGemist.Site.NET5));

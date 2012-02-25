@@ -1,5 +1,6 @@
 package net.pms.uitzendinggemist;
 
+import net.pms.uitzendinggemist.web.Regex;
 import java.util.regex.MatchResult;
 import net.pms.dlna.WebStream;
 import net.pms.dlna.virtual.VirtualFolder;

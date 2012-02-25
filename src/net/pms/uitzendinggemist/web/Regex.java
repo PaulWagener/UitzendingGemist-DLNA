@@ -1,4 +1,4 @@
-package net.pms.uitzendinggemist;
+package net.pms.uitzendinggemist.web;
 
 import java.util.ArrayList;
 import java.util.List;

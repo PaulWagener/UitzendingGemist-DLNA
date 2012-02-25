@@ -25,6 +25,7 @@ public abstract class HTTPWrapper {
     }
 
     public static String Request(String URL, byte[] PostData, String Referer) {
+        //System.out.println("URL: ("+URL+")");
         String method;
         if (PostData.length != 0) {
             method = "POST";

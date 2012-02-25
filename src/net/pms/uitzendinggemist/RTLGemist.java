@@ -1,5 +1,6 @@
 package net.pms.uitzendinggemist;
 
+import net.pms.uitzendinggemist.web.Regex;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
