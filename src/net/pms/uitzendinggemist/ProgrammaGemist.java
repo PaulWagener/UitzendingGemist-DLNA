@@ -16,6 +16,7 @@ import net.pms.uitzendinggemist.web.HTTPWrapper;
 /**
  *
  * @author paulwagener
+ * @updated by BlackDex
  */
 public class ProgrammaGemist extends VirtualFolder {
 

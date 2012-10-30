@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 /**
  *
  * @author Paul Wagener
+ * @updated by BlackDex
  */
 public class PubliekeOmroep extends VirtualFolder {
 
