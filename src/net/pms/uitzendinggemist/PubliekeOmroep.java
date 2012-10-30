@@ -115,6 +115,7 @@ public class PubliekeOmroep extends VirtualFolder {
         @Override
         public void discoverChildren() {
             super.discoverChildren();
+            HTTPWrapper.strCookies = "site_cookie_consent=yes";
             for (MatchResult m : Regex.all("<a href=\"([^\"]*?)\" class=\"genre\" title=\"(.*?)\"", HTTPWrapper.Request("http://www.uitzendinggemist.nl/genres"))) {
                 addChild(new ProgrammasFolder(m.group(2), m.group(1)));
             }
@@ -130,6 +131,7 @@ public class PubliekeOmroep extends VirtualFolder {
         @Override
         public void discoverChildren() {
             super.discoverChildren();
+            HTTPWrapper.strCookies = "site_cookie_consent=yes";
             for (MatchResult m : Regex.all("<a href=\"([^\"]*?)\" class=\"broadcaster\" title=\"(.*?)\">", HTTPWrapper.Request("http://www.uitzendinggemist.nl/omroepen"))) {
                 addChild(new ProgrammasFolder(m.group(2), m.group(1)));
             }
@@ -155,6 +157,7 @@ public class PubliekeOmroep extends VirtualFolder {
 
             String nextUrl;
             do {
+            	HTTPWrapper.strCookies = "site_cookie_consent=yes";
                 String content = HTTPWrapper.Request("http://www.uitzendinggemist.nl" + url);
                 for (MatchResult m : Regex.all("<li class=\"series.*?<a href=\"(/programmas/.*?)\".*?title=\"(.*?)\".*?(&quot;(.*?)&quot)?", content)) {
                     addChild(new AfleveringenFolder(m.group(2), m.group(1), m.group(3)));
@@ -193,6 +196,7 @@ public class PubliekeOmroep extends VirtualFolder {
         public void discoverChildren() {
             String nextUrl;
             do {
+            	HTTPWrapper.strCookies = "site_cookie_consent=yes";
                 String content = HTTPWrapper.Request("http://www.uitzendinggemist.nl" + url);
                 for (MatchResult m : Regex.all("<a href=\"/afleveringen/([0-9]+)\"[^>]*?><img.*?&quot;(.*?)&quot;.*?<a.*?>(.*?)<", content)) {
                     addChild(new Aflevering(m.group(1), m.group(3), m.group(2)));
@@ -224,6 +228,7 @@ public class PubliekeOmroep extends VirtualFolder {
 
             String afleveringUrl = "http://www.uitzendinggemist.nl/afleveringen/" + aflevering;
 
+            HTTPWrapper.strCookies = "site_cookie_consent=yes";
             String aflId = Regex.get("data-episode-id=\"([0-9]*?)\"", HTTPWrapper.Request(afleveringUrl));
             String encodedKey = Regex.get("<key>(.*?)</key>", HTTPWrapper.Request("http://pi.omroep.nl/info/security/"));
             String key = new String(Util.base64decode(encodedKey));

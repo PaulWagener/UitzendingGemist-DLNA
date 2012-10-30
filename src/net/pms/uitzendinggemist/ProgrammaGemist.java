@@ -105,25 +105,51 @@ public class ProgrammaGemist extends VirtualFolder {
         }
     }
 
+    // POPULAIR 0-9 ABC DEF GHI JKL MNO PQR STUV WXYZ
+    private String[] letterRanges = {"popular", "0-9", "abc", "def", "ghi", "jkl", "mno", "pqr", "stuv", "wxyz"};
+    
     /**
-     * Zoek de seriess op dit kanaal
+     * Zoek de series op dit kanaal
      */
     @Override
     public void discoverChildren() {
         super.discoverChildren();
+        
+        for (String letterRange: letterRanges)
+        {
+        	String url = "/ajax/programFilter/day/0/genre/all/block/gemist/range/" + letterRange;
+        	addChild(new ProgrammasFolder(letterRange + "", url));
+        }
+    }
+    
+    /**
+     * Een lijst van programmas
+     */
+    class ProgrammasFolder extends VirtualFolder {
 
-        String pageLink = "/ajax/programFilter/range/abcdefghijklmonpqrstuvwxyz/day/0/genre/all/block/gemist";
-        String pageSource = null;
-        do {
-            pageSource = HTTPWrapper.Request(site.base + pageLink);
+        String url;
 
-            //Voeg alle series op de page toe
-            for (MatchResult serie : Regex.all("<img src=\"(.*?)\".*?<h2><a href=\"(.*?)\">(.*?)</a>", pageSource)) {
-                addChild(new Serie(serie.group(3), serie.group(2), serie.group(1), true, site));
-            }
+        public ProgrammasFolder(String name, String url) {
+            super(name, null);
+            this.url = url;
+        }
 
-            //Zolang er een 'nextPage' is
-        } while ((pageLink = Regex.get("<a href=\"([a-zA-Z0-9-_/]+)\" class=\"nextPage", pageSource)) != null);
+        @Override
+        public void discoverChildren() {
+            super.discoverChildren();
+
+            String pageSource = null;
+            do {
+                pageSource = HTTPWrapper.Request(site.base + url);
+
+                //Voeg alle series op de page toe
+                for (MatchResult serie : Regex.all("<img src=\"(.*?)\".*?<h2><a href=\"(.*?)\">(.*?)</a>", pageSource)) {
+                    addChild(new Serie(serie.group(3), serie.group(2), serie.group(1), true, site));
+                }
+
+                //Zolang er een 'nextPage' is
+            } while ((url = Regex.get("<a href=\"([a-zA-Z0-9-_/]+)\" class=\"nextPage", pageSource)) != null);
+        }
     }
 
     /**
