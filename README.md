@@ -3,7 +3,7 @@ UitzendingGemist-DLNA
 
 PS3 media server plugin
 
-Zet dit bestand: http://uitzendinggemist-dlna.googlecode.com/svn/trunk/dist/UitzendingGemist.jar in de PS3 Media Server plugins map. Vervolgens is er een Uitzending Gemist map in het PMS hoofdmenu.
+Zet dit bestand: https://github.com/PaulWagener/UitzendingGemist-DLNA/blob/master/dist/UitzendingGemist.jar?raw=true in de PS3 Media Server plugins map. Vervolgens is er een Uitzending Gemist map in het PMS hoofdmenu.
 
 De plugin werkt op het moment alleen met de laatste beta die je hier kunt downloaden: http://ps3mediaserver.org/forum/viewtopic.php?f=2&t=3217
 
